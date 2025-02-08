@@ -1,15 +1,14 @@
 import express from "express"
-import dotenv from "dotenv"
 import multer from "multer";
 import path from "path"
 import { routers } from "./routers/index.js";
-import ApiError from "./exceptions/api-error.js";
 import { errorMiddleware } from "./middlewares/error-middleware.js";
+import ApiError from "./exceptions/api-error.js";
 
-dotenv.config()
-
-const PORT = process.env.PORT || 4000;
+const PORT = 4000;
 const app = express()
+
+app.use(express.json())
 
 const fileConfig = multer.diskStorage({
   destination: (req, res, cb) => {
@@ -27,8 +26,6 @@ const fileFilter = (req, file, cb) => {
   }
   cb(null, true)
 }
-
-app.use(express.json())
 
 app.use(multer({
   storage: fileConfig,
