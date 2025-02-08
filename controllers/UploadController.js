@@ -3,7 +3,9 @@ import { uploadService } from "../services/UploadService.js"
 class UploadController {
   async UploadFile(req, res, next) {
     try {
-      const fileData = await uploadService.uploadFile(req.file, req)
+      const { file } = req;
+
+      const fileData = await uploadService.uploadFile(file);
 
       return res.json(fileData)
     } catch (e) {
@@ -14,9 +16,9 @@ class UploadController {
 
   async DownloadFile(req, res, next) {
     try {
-      const { filename } = req.params
+      const { filename } = req.params;
 
-      const downloadData = await uploadService.downloadFile(filename)
+      const downloadData = await uploadService.downloadFile(filename);
 
       return downloadData.pipe(res)
     } catch (e) {

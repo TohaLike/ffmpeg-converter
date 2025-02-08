@@ -7,7 +7,6 @@ const { filePath } = workerData;
 
 const outputFilename = `${Date.now()}.mp4`;
 const outputPath = path.join('converted', outputFilename);
-let totalTime = 0;
 
 const drawProgressBar = (progress) => {
   const barWidth = 30;
@@ -31,27 +30,18 @@ ffmpeg(filePath)
   .on("start", () => {
     console.log("Start converting")
   })
-  .on("codecData", data => {
-    totalTime = parseInt(data.duration.replace(/:/g, ''))
-  })
   .on("progress", (progress) => {
-    const time = parseInt(progress.timemark.replace(/:/g, ''))
-    const percent = (time / totalTime) * 100
-
-    // console.log(parseInt(percent))
-    
-    process.stdout.write("\x1Bc"); // Очистка консоли
-
-    process.stdout.write(`\r${drawProgressBar(parseInt(percent))}`)
+    process.stdout.write(`\r${drawProgressBar(parseInt(progress.percent))}`)
   })
-  .on("end", (end) => {
+  .on("end", () => {
+    process.stdout.write("\r\x1b[K")
     fs.unlinkSync(filePath);
-    parentPort.postMessage({ message: 'File converted', downloadUrl: `/converted/${outputFilename}` });
+    parentPort.postMessage({ success: true, message: 'File converted', downloadUrl: `/converted/${outputFilename}` });
   })
   .on("error", (err) => {
+    process.stdout.write("\r\x1b[K")
     fs.unlinkSync(filePath);
-    parentPort.postMessage({ error: `Conversion error: ${err.message}` });
+    parentPort.postMessage({ success: true, error: `Conversion error: ${err.message}` });
   })
   .output(outputPath)
   .run();
-

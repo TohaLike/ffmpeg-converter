@@ -16,8 +16,7 @@ const fileConfig = multer.diskStorage({
     cb(null, "./uploads")
   },
   filename: (req, file, cb) => {
-    let extension = file.originalname.substring(file.originalname.lastIndexOf('.'), file.originalname.length);
-    cb(null, crypto.randomUUID() + extension);
+    cb(null, `${Date.now()}.mp4`);
   }
 })
 
