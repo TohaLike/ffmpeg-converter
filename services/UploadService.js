@@ -16,7 +16,6 @@ class UploadService {
         if (message.success) {
           resolve({ message: "Файл успешно преобразован", filename: message.downloadUrl });
           worker.terminate();
-          fs.unlinkSync(inputPath);
         } else {
           reject({ error: message.error });
           worker.terminate();
