@@ -19,7 +19,6 @@ class UploadService {
         } else {
           reject({ error: message.error });
           worker.terminate();
-          fs.unlinkSync(inputPath);
         }
       });
 

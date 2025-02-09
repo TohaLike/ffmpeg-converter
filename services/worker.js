@@ -1,6 +1,7 @@
 import { parentPort, workerData } from "worker_threads";
 import ffmpeg from "fluent-ffmpeg";
 import path from "path";
+import fs from "fs"
 
 const { filePath } = workerData;
 
@@ -35,10 +36,12 @@ ffmpeg(filePath)
   })
   .on("end", () => {
     process.stdout.write("\r\x1b[K")
+    fs.unlinkSync(filePath);
     parentPort.postMessage({ success: true, message: 'File converted', downloadUrl: `/api/download/${outputFilename}` });
   })
   .on("error", (err) => {
     process.stdout.write("\r\x1b[K")
+    fs.unlinkSync(filePath);
     parentPort.postMessage({ success: true, error: `Conversion error: ${err.message}` });
   })
   .output(outputPath)
