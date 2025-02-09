@@ -15,21 +15,24 @@ const fileConfig = multer.diskStorage({
     cb(null, "./uploads")
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}.mp4`);
+    cb(null, `${Date.now()}-${file.originalname}`);
   }
 })
 
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname)
+  if (req.headers["content-length"] > 2 * 1024 * 1024 * 1024) {
+    return cb(ApiError.FileSizeLimit())
+  }
   if (ext !== ".mov") {
-    return cb(ApiError.BadRequest("Только .mov формат"))
+    return cb(ApiError.FileFormatError())
   }
   cb(null, true)
 }
 
 app.use(multer({
   storage: fileConfig,
-  limits: 2 * 1024 * 1024 * 1024,
+  limits: { fileSize: 2 * 1024 * 1024 * 1024 },
   fileFilter: fileFilter
 }).single("file"))
 

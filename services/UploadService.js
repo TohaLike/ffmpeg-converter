@@ -7,34 +7,45 @@ const __dirname = import.meta.dirname;
 
 class UploadService {
 
-  async uploadFile(file) {
-    const inputPath = path.resolve(file.path);
-    const worker = new Worker(path.resolve(__dirname, "worker.js"), { workerData: { filePath: inputPath } });
+  uploadFile(file) {
+    return new Promise((resolve, reject) => {
+      const inputPath = path.resolve(file.path);
+      const worker = new Worker(path.resolve(__dirname, "worker.js"), { workerData: { filePath: inputPath } });
 
-    worker.on("message", (message) => {
-      if (message.success) {
-        console.log({ message: "File converted successfully", filename: message.downloadUrl });
-      } else {
-        console.log({ error: message.error });
-      }
-    });
+      worker.on("message", (message) => {
+        if (message.success) {
+          resolve({ message: "Файл успешно преобразован", filename: message.downloadUrl });
+          worker.terminate();
+          fs.unlinkSync(inputPath);
+        } else {
+          reject({ error: message.error });
+          worker.terminate();
+          fs.unlinkSync(inputPath);
+        }
+      });
 
-    worker.on('error', (err) => {
-      console.log({ error: "Worker error: " + err.message });
-    });
-
-    return file
+      worker.on("error", (err) => {
+        reject({ error: "Ошибка воркера: " + err.message });
+        worker.terminate();
+        fs.unlinkSync(inputPath);
+      });
+    })
   }
 
 
-  async downloadFile(filename) {
-    const outputPath = path.join("converted", filename);
+  downloadFile(filename) {
+    return new Promise((resolve, reject) => {
+      const outputPath = path.join("converted", filename);
 
-    if (!outputPath) throw ApiError.FileNotFound()
+      const fileStream = fs.createReadStream(outputPath);
 
-    const fileStream = fs.createReadStream(outputPath);
+      fileStream.on("open", () => {
+        resolve(fileStream);
+        fs.unlinkSync(outputPath);
+      })
 
-    return fileStream
+      fileStream.on("error", () => reject(ApiError.FileNotFound()))
+    })
   }
 
 }

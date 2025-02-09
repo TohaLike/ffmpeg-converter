@@ -12,9 +12,13 @@ export default class ApiError extends Error {
     return new ApiError(400, message, errors)
   }
 
-  // static FileSizeLimit() {
-  //   return new ApiError()
-  // }
+  static FileFormatError() {
+    return new ApiError(415, "Только .mov формат")
+  }
+
+  static FileSizeLimit() {
+    return new ApiError(413, "Размер файла превышает ограничение в 2 ГБ")
+  }
 
   static FileNotFound() {
     return new ApiError(404, "Файл не найден")

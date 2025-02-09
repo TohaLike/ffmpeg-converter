@@ -7,7 +7,9 @@ const { filePath } = workerData;
 
 const outputFilename = `${Date.now()}.mp4`;
 const outputPath = path.join('converted', outputFilename);
+let ffmpegProcess = null;
 
+// Сделал progress bar для себя, мне надо было узнать насколько быстро конвертируется видео
 const drawProgressBar = (progress) => {
   const barWidth = 30;
   const filledWidth = Math.floor(progress / 100 * barWidth);
@@ -16,7 +18,7 @@ const drawProgressBar = (progress) => {
   return `[${progressBar}] ${progress}%`;
 }
 
-ffmpeg(filePath)
+ffmpegProcess = ffmpeg(filePath)
   .videoCodec("h264_videotoolbox")
   .size("1280x720")
   .audioCodec("copy")
@@ -35,13 +37,13 @@ ffmpeg(filePath)
   })
   .on("end", () => {
     process.stdout.write("\r\x1b[K")
-    fs.unlinkSync(filePath);
-    parentPort.postMessage({ success: true, message: 'File converted', downloadUrl: `/converted/${outputFilename}` });
+    parentPort.postMessage({ success: true, message: 'File converted', downloadUrl: `/api/download/${outputFilename}` });
   })
   .on("error", (err) => {
     process.stdout.write("\r\x1b[K")
-    fs.unlinkSync(filePath);
     parentPort.postMessage({ success: true, error: `Conversion error: ${err.message}` });
   })
   .output(outputPath)
   .run();
+
+
