@@ -1,13 +1,11 @@
 import { parentPort, workerData } from "worker_threads";
 import ffmpeg from "fluent-ffmpeg";
 import path from "path";
-import fs from "fs"
 
 const { filePath } = workerData;
 
 const outputFilename = `${Date.now()}.mp4`;
 const outputPath = path.join('converted', outputFilename);
-let ffmpegProcess = null;
 
 // Сделал progress bar для себя, мне надо было узнать насколько быстро конвертируется видео
 const drawProgressBar = (progress) => {
@@ -18,7 +16,7 @@ const drawProgressBar = (progress) => {
   return `[${progressBar}] ${progress}%`;
 }
 
-ffmpegProcess = ffmpeg(filePath)
+ffmpeg(filePath)
   .videoCodec("h264_videotoolbox")
   .size("1280x720")
   .audioCodec("copy")
