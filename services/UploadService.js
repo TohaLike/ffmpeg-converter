@@ -10,11 +10,14 @@ class UploadService {
   uploadFile(file) {
     return new Promise((resolve, reject) => {
       const inputPath = path.resolve(file.path);
+      
+      if (!fs.existsSync("converted")) fs.mkdirSync("converted", { recursive: true })
+
       const worker = new Worker(path.resolve(__dirname, "worker.js"), { workerData: { filePath: inputPath } });
 
       worker.on("message", (message) => {
         if (message.success) {
-          resolve({ message: "Файл успешно преобразован", filename: message.downloadUrl });
+          resolve({ message: message.message, filename: message.downloadUrl });
           worker.terminate();
         } else {
           reject({ error: message.error });

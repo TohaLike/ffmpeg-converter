@@ -6,7 +6,7 @@ import fs from "fs"
 const { filePath } = workerData;
 
 const outputFilename = `${Date.now()}.mp4`;
-const outputPath = path.join('converted', outputFilename);
+const outputPath = path.join("converted", outputFilename);
 
 // Сделал progress bar для себя, мне надо было узнать насколько быстро конвертируется видео
 const drawProgressBar = (progress) => {
@@ -28,16 +28,13 @@ ffmpeg(filePath)
     "-r 30", // Понижение FPS
     "-c:v h264_videotoolbox", // Использование GPU (на Mac)
   ])
-  .on("start", () => {
-    console.log("Start converting")
-  })
   .on("progress", (progress) => {
     process.stdout.write(`\r${drawProgressBar(parseInt(progress.percent))}`)
   })
-  .on("end", () => {
+  .on("end", (e) => {
     process.stdout.write("\r\x1b[K")
     fs.unlinkSync(filePath);
-    parentPort.postMessage({ success: true, message: 'File converted', downloadUrl: `/api/download/${outputFilename}` });
+    parentPort.postMessage({ success: true, message: "Файл успешно преобразован", downloadUrl: `/api/download/${outputFilename}` });
   })
   .on("error", (err) => {
     process.stdout.write("\r\x1b[K")

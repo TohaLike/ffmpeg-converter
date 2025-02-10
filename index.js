@@ -4,6 +4,7 @@ import path from "path"
 import { routers } from "./routers/index.js";
 import { errorMiddleware } from "./middlewares/error-middleware.js";
 import ApiError from "./exceptions/api-error.js";
+import fs from "fs";
 
 const PORT = 4000;
 const app = express()
@@ -12,6 +13,9 @@ app.use(express.json())
 
 const fileConfig = multer.diskStorage({
   destination: (req, res, cb) => {
+    if (!fs.existsSync("uploads")) {
+      fs.mkdirSync("uploads", { recursive: true })
+    }
     cb(null, "./uploads")
   },
   filename: (req, file, cb) => {
@@ -40,7 +44,6 @@ app.use("/api", routers)
 
 app.use(errorMiddleware)
 
-// main
 const main = async () => {
   try {
     app.listen(PORT, () => console.log(`Server has been started ${PORT}`))
