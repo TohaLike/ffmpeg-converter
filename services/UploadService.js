@@ -20,15 +20,11 @@ class UploadService {
           if (message.success) {
             resolve({ message: message.message, filename: message.downloadUrl });
             worker.terminate();
-          } else {
-            reject({ error: message.error });
-            worker.terminate();
           }
         })
         .on("error", (error) => {
-          reject({ error: error.message });
+          reject(ApiError.ServerError(error.message));
           worker.terminate();
-          fs.unlinkSync(inputPath);
         });
     })
   }

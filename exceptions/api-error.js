@@ -2,7 +2,7 @@ export default class ApiError extends Error {
   status;
   errors;
 
-  constructor (status, message, errors = []) {
+  constructor(status, message, errors = []) {
     super(message);
     this.status = status;
     this.errors = errors;
@@ -24,4 +24,7 @@ export default class ApiError extends Error {
     return new ApiError(404, "Файл не найден")
   }
 
+  static ServerError(message, errors = []) {
+    return new ApiError(500, message, errors)
+  }
 }

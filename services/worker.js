@@ -17,7 +17,7 @@ const drawProgressBar = (progress) => {
   return `[${progressBar}] ${progress}%`;
 }
 
-ffmpeg(filePath)
+ffmpeg('filePath')
   .videoCodec("h264_videotoolbox")
   .size("1280x720")
   .audioCodec("copy")
@@ -39,7 +39,7 @@ ffmpeg(filePath)
   .on("error", (err) => {
     process.stdout.write("\r\x1b[K")
     fs.unlinkSync(filePath);
-    parentPort.postMessage({ success: true, error: `Conversion error: ${err.message}` });
+    throw Error(err)
   })
   .output(outputPath)
   .run();
