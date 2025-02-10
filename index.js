@@ -40,6 +40,7 @@ app.use("/api", routers)
 
 app.use(errorMiddleware)
 
+// main
 const main = async () => {
   try {
     app.listen(PORT, () => console.log(`Server has been started ${PORT}`))
